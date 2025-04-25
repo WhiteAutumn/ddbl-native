@@ -1,0 +1,65 @@
+name: Build Native Image
+
+on:
+  workflow_dispatch:
+    inputs:
+      java_version:
+        description: Java version
+        required: true
+        default: 21
+
+      main_class:
+        description: Main class
+        required: true
+        default: dev.autumn.ddblnative.MainKt
+
+jobs:
+  build-native-image:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - id: linux-x64
+            os: ubuntu-latest
+            arch: x64
+          - id: linux-arm64
+            os: ubuntu-24.04-arm
+            arch: aarch64
+
+          - id: windows-x64
+            os: windows-latest
+            arch: x64
+          #- id: windows-arm64
+          #  os: windows-11-arm
+          #  arch: aarch64
+
+          - id: macos-x64
+            os: macos-13
+            arch: x64
+          - id: macos-arm64
+            os: macos-14
+            arch: aarch64
+
+    name: Build ${{ matrix.id }}
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up GraalVM
+        uses: graalvm/setup-graalvm@v1
+        with:
+          java-version: ${{ github.event.inputs.java_version }}
+
+      - name: Build
+        uses: gradle/gradle-build-action@v2
+        with:
+          generate-job-summary: false
+          arguments: nativeCompile -Pmain=${{ github.event.inputs.main_class }}
+
+      - name: Publish artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.id }}
+          path: |
+            build/native/nativeCompile/

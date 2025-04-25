@@ -1,0 +1,8 @@
+/.gradle
+/build/
+
+# Kotlin
+/.kotlin
+
+# OS Specific
+.DS_Store
