@@ -20,7 +20,6 @@ fun main(args: Array<String>) {
 	val extraOptions = Options().apply {
 		addOption(
 			Option.builder("port")
-				.longOpt("port")
 				.hasArg()
 				.argName("0|1-65535")
 				.desc("Specify a port number or 0 for an OS-assigned port")
@@ -29,7 +28,6 @@ fun main(args: Array<String>) {
 
 		addOption(
 			Option.builder("callback")
-				.longOpt("callback")
 				.hasArg()
 				.argName("url")
 				.desc("HTTP endpoint that receives the chosen port")
