@@ -15,6 +15,8 @@ import java.time.Duration
 import kotlin.system.exitProcess
 
 fun main(args: Array<String>) {
+	println("Starting DynamoDB Local using extended entry point")
+
 	val extraOptions = Options().apply {
 		addOption(
 			Option.builder("port")
@@ -94,6 +96,8 @@ fun main(args: Array<String>) {
 	server.start()
 
 	if (callbackUrl != null) {
+		println("Callback URL: $callbackUrl")
+
 		val field = DynamoDBProxyServer::class.java
 			.getDeclaredField("server")
 
@@ -118,6 +122,9 @@ fun main(args: Array<String>) {
 
 			if (response.statusCode() !in 200..299) {
 				System.err.println("Callback failed: HTTP ${response.statusCode()}")
+			}
+			else {
+				println("Callback successful")
 			}
 		}
 		catch (exception: Exception) {
