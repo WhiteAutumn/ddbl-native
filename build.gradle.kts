@@ -24,6 +24,10 @@ val main: String =
 	(findProperty("main") as String?)
 		?: "dev.autumn.ddblnative.MainKt"
 
+val march: String =
+	(findProperty("march") as String?)
+		?: "native"
+
 repositories {
 	mavenCentral()
 }
@@ -58,6 +62,8 @@ graalvmNative {
 			debug.set(false)
 			verbose.set(false)
 			fallback.set(false)
+
+			buildArgs.add("-march=$march")
 		}
 	}
 
@@ -151,3 +157,4 @@ tasks.register("generateReflectConfig") {
 tasks.named("nativeCompile") {
 	dependsOn("generateReflectConfig")
 }
+
