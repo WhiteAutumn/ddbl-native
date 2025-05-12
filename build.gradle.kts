@@ -53,6 +53,7 @@ repositories {
 
 dependencies {
 	val exerciseImplementation by configurations.getting
+	val exerciseRuntimeOnly by configurations.getting
 
 	implementation("com.amazonaws:DynamoDBLocal:$dynamoDbVersion") {
 		exclude(group = "org.apache.logging.log4j", module = "log4j-core")
@@ -68,6 +69,7 @@ dependencies {
 	runtimeOnly("org.slf4j:slf4j-simple:1.7.36")
 
 	exerciseImplementation("aws.sdk.kotlin:dynamodb:1.4.81")
+	exerciseRuntimeOnly("org.slf4j:slf4j-nop:2.0.17")
 }
 
 graalvmNative {
