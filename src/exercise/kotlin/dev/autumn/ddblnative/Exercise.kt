@@ -1,10 +1,10 @@
 package dev.autumn.ddblnative
 
+import aws.sdk.kotlin.runtime.auth.credentials.StaticCredentialsProvider
 import aws.sdk.kotlin.services.dynamodb.DynamoDbClient
 import aws.sdk.kotlin.services.dynamodb.createTable
 import aws.sdk.kotlin.services.dynamodb.describeTable
 import aws.sdk.kotlin.services.dynamodb.getItem
-import aws.sdk.kotlin.services.dynamodb.listTables
 import aws.sdk.kotlin.services.dynamodb.model.AttributeDefinition
 import aws.sdk.kotlin.services.dynamodb.model.AttributeValue
 import aws.sdk.kotlin.services.dynamodb.model.BillingMode
@@ -22,6 +22,11 @@ suspend fun main(args: Array<String>) {
 
 	val dynamo = DynamoDbClient {
 		region = "us-east-1"
+		credentialsProvider = StaticCredentialsProvider {
+			accessKeyId = "fakeKeyId"
+			secretAccessKey = "fakeSecretAccessKey"
+		}
+
 		endpointUrl = Url.parse(endpoint)
 	}
 
