@@ -27,8 +27,8 @@ val mainClassName: String =
 	(findProperty("main") as String?)
 		?: "dev.autumn.ddblnative.MainKt"
 
-val march: String =
-	(findProperty("march") as String?)
+val machineArch: String =
+	(findProperty("machineArch") as String?)
 		?: "native"
 
 sourceSets {
@@ -82,7 +82,7 @@ graalvmNative {
 			verbose.set(false)
 			fallback.set(false)
 
-			buildArgs.add("-march=$march")
+			buildArgs.add("-march=$machineArch")
 		}
 	}
 

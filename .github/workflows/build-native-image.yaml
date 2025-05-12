@@ -13,8 +13,8 @@ on:
         required: true
         default: dev.autumn.ddblnative.MainKt
         
-      march:
-        description: CPU architecture compatibility
+      machine_arch:
+        description: Machine architecture
         required: true
         default: native
 
@@ -60,7 +60,7 @@ jobs:
         uses: gradle/gradle-build-action@v2
         with:
           generate-job-summary: false
-          arguments: nativeCompile -Pmain=${{ github.event.inputs.main_class }} -Pmarch=${{ github.event.inputs.march }}
+          arguments: nativeCompile -Pmain=${{ github.event.inputs.main_class }} -PmachineArch=${{ github.event.inputs.machine_arch }}
 
       - name: Publish artifact
         uses: actions/upload-artifact@v4
