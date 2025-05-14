@@ -2,9 +2,8 @@ import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.*
 import java.net.ServerSocket
 import java.net.URLClassLoader
-import java.nio.file.Files
-import java.nio.file.Paths
 import java.util.jar.JarFile
+import kotlin.system.exitProcess
 
 plugins {
 	kotlin("jvm") version "2.1.10"
@@ -107,15 +106,6 @@ tasks.register("generateReflectConfig") {
 		val reflectConfig = buildJsonArray {
 			val reflectionClasses = mutableSetOf<String>()
 
-			addJsonObject {
-				val name = "com.amazonaws.services.dynamodbv2.local.shared.access.sqlite.TableSchemaInfo"
-				reflectionClasses += name
-				put("name", name)
-				put("allDeclaredConstructors", true)
-				put("allDeclaredMethods", true)
-				put("allDeclaredFields", true)
-			}
-
 			val urls = sourceSets.main.get().runtimeClasspath.map { it.toURI().toURL() }
 			val loader = URLClassLoader.newInstance(urls.toTypedArray())
 
@@ -177,6 +167,9 @@ tasks.register("generateReflectConfig") {
 			val runtimeClassPath = main.runtimeClasspath
 				.joinToString(File.pathSeparator) { it.absolutePath }
 
+			val serverProcessLog = layout.buildDirectory.file("tmp/dynamodb-local.log").get().asFile
+			serverProcessLog.parentFile.mkdirs()
+
 			val serverProcess = ProcessBuilder(
 				"java",
 				"-agentlib:native-image-agent=config-output-dir=$agentResultDir",
@@ -184,6 +177,8 @@ tasks.register("generateReflectConfig") {
 				mainClassName,
 				"-inMemory", "-sharedDb", "-port", port.toString()
 			)
+				.redirectOutput(serverProcessLog)
+				.redirectError(serverProcessLog)
 				.start()
 
 			project.javaexec {
@@ -192,12 +187,31 @@ tasks.register("generateReflectConfig") {
 				args("http://127.0.0.1:$port")
 			}
 
+			if (!serverProcess.isAlive) {
+				println("DynamoDB Local server process exited unexpectedly! DynamoDB Local logs:\n${serverProcessLog.readText()}")
+				exitProcess(1)
+			}
+
 			serverProcess.destroy()
 			serverProcess.waitFor()
 
+			val agentResultFile = File("$agentResultDir/reflect-config.json")
 
-			val agentResultText = String(Files.readAllBytes(Paths.get("$agentResultDir/reflect-config.json")))
-			for (element in json.parseToJsonElement(agentResultText).jsonArray) {
+			val waitStartTime = System.currentTimeMillis()
+			while (true) {
+				if (System.currentTimeMillis() - waitStartTime > 5_000) {
+					println("Could not find agent result file! DynamoDB Local logs:\n${serverProcessLog.readText()}")
+					exitProcess(1)
+				}
+
+				if (agentResultFile.exists()) {
+					break
+				}
+
+				Thread.sleep(100)
+			}
+
+			for (element in json.parseToJsonElement(agentResultFile.readText()).jsonArray) {
 				val name = element.jsonObject["name"]?.jsonPrimitive?.content
 					?: continue
 
