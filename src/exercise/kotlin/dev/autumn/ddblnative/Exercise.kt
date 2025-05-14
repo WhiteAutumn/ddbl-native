@@ -85,7 +85,5 @@ suspend fun main(args: Array<String>) {
 		)
 	}
 
-	delay(5_000)
-
 	exitProcess(0)
 }
