@@ -127,8 +127,10 @@ tasks.register("generateReflectConfig") {
 							jf.entries().asSequence()
 								.map { it.name }
 								.filter {
-									it.startsWith("com/amazonaws/services/dynamodbv2/model/")
-										&& it.endsWith(".class")
+									it.endsWith(".class") && (
+										it.startsWith("com/amazonaws/services/dynamodbv2/model/") ||
+										it.startsWith("com/amazonaws/services/dynamodbv2/local/shared/model")
+									)
 								}
 								.map { it.removeSuffix(".class").replace('/', '.') }
 								.toList()
