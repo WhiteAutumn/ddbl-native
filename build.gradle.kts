@@ -107,6 +107,15 @@ tasks.register("generateReflectConfig") {
 		val reflectConfig = buildJsonArray {
 			val reflectionClasses = mutableSetOf<String>()
 
+			addJsonObject {
+				val name = "com.amazonaws.services.dynamodbv2.local.shared.access.sqlite.TableSchemaInfo"
+				reflectionClasses += name
+				put("name", name)
+				put("allDeclaredConstructors", true)
+				put("allDeclaredMethods", true)
+				put("allDeclaredFields", true)
+			}
+
 			val urls = sourceSets.main.get().runtimeClasspath.map { it.toURI().toURL() }
 			val loader = URLClassLoader.newInstance(urls.toTypedArray())
 
