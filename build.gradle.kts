@@ -30,6 +30,8 @@ val machineArch: String =
 	(findProperty("machineArch") as String?)
 		?: "native"
 
+val loggingEnabled: Boolean = findProperty("loggingEnabled") == "true"
+
 sourceSets {
 	test {
 		kotlin.srcDirs(emptyList<String>())
@@ -64,8 +66,12 @@ dependencies {
 	implementation("org.apache.logging.log4j:log4j-to-slf4j:2.17.2")
 	implementation("commons-cli:commons-cli:1.6.0")
 
-	//runtimeOnly("org.slf4j:slf4j-nop:1.7.36")
-	runtimeOnly("org.slf4j:slf4j-simple:1.7.36")
+	if (loggingEnabled) {
+		runtimeOnly("org.slf4j:slf4j-simple:1.7.36")
+	}
+	else {
+		runtimeOnly("org.slf4j:slf4j-nop:1.7.36")
+	}
 
 	exerciseImplementation("aws.sdk.kotlin:dynamodb:1.4.81")
 	exerciseRuntimeOnly("org.slf4j:slf4j-nop:2.0.17")

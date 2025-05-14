@@ -18,6 +18,11 @@ on:
         required: true
         default: native
 
+      logging_enabled:
+        description: Enable logging in the executable
+        required: true
+        default: "false"
+
 jobs:
   build-native-image:
     strategy:
@@ -60,7 +65,7 @@ jobs:
         uses: gradle/gradle-build-action@v2
         with:
           generate-job-summary: false
-          arguments: nativeCompile -Pmain=${{ github.event.inputs.main_class }} -PmachineArch=${{ github.event.inputs.machine_arch }}
+          arguments: nativeCompile -Pmain=${{ github.event.inputs.main_class }} -PmachineArch=${{ github.event.inputs.machine_arch }} -PloggingEnabled=${{ github.event.inputs.logging_enabled }}
 
       - name: Publish artifact
         uses: actions/upload-artifact@v4
