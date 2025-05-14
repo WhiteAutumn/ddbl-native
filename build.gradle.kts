@@ -18,7 +18,7 @@ buildscript {
 
 
 group = "dev.autumn"
-version = "0.0.5"
+version = "0.0.6"
 
 val dynamoDbVersion = "2.6.0"
 
