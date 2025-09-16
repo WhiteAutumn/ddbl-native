@@ -203,6 +203,13 @@ tasks.register("generateReflectConfig") {
 				.redirectError(serverProcessLog)
 				.start()
 
+			Thread.sleep(1000)
+
+			if (!serverProcess.isAlive) {
+				println("DynamoDB Local server process exited unexpectedly! DynamoDB Local logs:\n${serverProcessLog.readText()}")
+				exitProcess(1)
+			}
+
 			project.javaexec {
 				classpath = exercise.runtimeClasspath
 				mainClass.set("dev.autumn.ddblnative.ExerciseKt")
