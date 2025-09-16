@@ -187,9 +187,14 @@ tasks.register("generateReflectConfig") {
 			val serverProcessLog = layout.buildDirectory.file("tmp/dynamodb-local.log").get().asFile
 			serverProcessLog.parentFile.mkdirs()
 
+			val agentArgs = listOf(
+				"config-output-dir=$agentResultDir",
+				"config-write-period-secs=1"
+			).joinToString(",")
+
 			val serverProcess = ProcessBuilder(
 				"java",
-				"-agentlib:native-image-agent=config-output-dir=$agentResultDir",
+				"-agentlib:native-image-agent=$agentArgs",
 				"-cp", runtimeClassPath,
 				mainClassName,
 				"-inMemory", "-sharedDb", "-port", port.toString()
@@ -204,6 +209,8 @@ tasks.register("generateReflectConfig") {
 				args("http://127.0.0.1:$port")
 			}
 
+			Thread.sleep(2000)
+
 			if (!serverProcess.isAlive) {
 				println("DynamoDB Local server process exited unexpectedly! DynamoDB Local logs:\n${serverProcessLog.readText()}")
 				exitProcess(1)
@@ -213,19 +220,9 @@ tasks.register("generateReflectConfig") {
 			serverProcess.waitFor()
 
 			val agentResultFile = File("$agentResultDir/reflect-config.json")
-
-			val waitStartTime = System.currentTimeMillis()
-			while (true) {
-				if (System.currentTimeMillis() - waitStartTime > 5_000) {
-					println("Could not find agent result file! DynamoDB Local logs:\n${serverProcessLog.readText()}")
-					exitProcess(1)
-				}
-
-				if (agentResultFile.exists()) {
-					break
-				}
-
-				Thread.sleep(100)
+			if (!agentResultFile.exists()) {
+				println("Could not find agent result file! DynamoDB Local logs:\n${serverProcessLog.readText()}")
+				exitProcess(1)
 			}
 
 			for (element in json.parseToJsonElement(agentResultFile.readText()).jsonArray) {
