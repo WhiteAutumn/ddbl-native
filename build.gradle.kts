@@ -1,3 +1,5 @@
+@file:Suppress("unused")
+
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.*
 import java.net.ServerSocket
@@ -38,7 +40,7 @@ sourceSets {
 		resources.srcDirs(emptyList<String>())
 	}
 
-	create("exercise") {
+	val exercise by creating {
 		kotlin.srcDir("src/exercise/kotlin")
 		resources.srcDir("src/exercise/resources")
 	}
